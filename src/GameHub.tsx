@@ -1,0 +1,37 @@
+import {useCallback,useEffect,useRef,useState} from 'react';
+import {CreativeGame} from './CreativeGame';
+import {catalogue,dailyPuzzle,findPuzzle} from './catalogue';
+import {chooseNext,newAttempt} from './progress';
+import type {Attempt,Completion,Difficulty,Progress} from './progress';
+import './hub.css';
+type Props={day:string;initial:Progress;saveProgress:(p:Progress)=>Promise<void>;saveCompletion:(a:Attempt,mode:'Daily'|'Free play')=>Promise<void>;onDescribe?:(s:Record<string,unknown>)=>void;storageLabel:string;completionLabel?:string;onDelete?:()=>Promise<void>};
+export function GameHub({day,initial,saveProgress,saveCompletion,onDescribe,storageLabel,completionLabel,onDelete}:Props){
+ const [initialDaily]=useState(()=>initial.daily?.day===day?initial.daily.attempt:newAttempt(dailyPuzzle(day)));
+ const [viewProgress,setViewProgress]=useState<Progress>(()=>({...initial,daily:{day,attempt:initialDaily}}));
+ const state=useRef<Progress>(viewProgress);
+ const [mode,setMode]=useState<'Daily'|'Free play'>('Daily'),[attempt,setAttempt]=useState(initialDaily),[difficulty,setDifficulty]=useState(initial.difficulty),[notice,setNotice]=useState(''),[error,setError]=useState(''),[exhausted,setExhausted]=useState(false),[deleteConfirm,setDeleteConfirm]=useState(false);
+ const flushRef=useRef<(()=>Attempt)|null>(null),queue=useRef(Promise.resolve()),alive=useRef(true),blocked=useRef(false),lastSaved=useRef('');
+ useEffect(()=>{alive.current=true;return()=>{alive.current=false;};},[]);
+ const persist=useCallback(()=>{if(blocked.current)return;const value=structuredClone(state.current);setViewProgress(value);const key=JSON.stringify(value);if(key===lastSaved.current)return;lastSaved.current=key;queue.current=queue.current.then(()=>{if(blocked.current)return;return saveProgress(value);}).catch(e=>{blocked.current=true;if(alive.current)setError(e instanceof Error?e.message:'Progress could not be saved. Keep this page open.');});},[saveProgress]);
+ const receive=useCallback((a:Attempt)=>{if(mode==='Daily'){if(state.current.daily?.attempt.attemptId!==a.attemptId)return;state.current.daily={day,attempt:a};}else{if(state.current.free?.attemptId!==a.attemptId)return;state.current.free=a;}persist();},[persist,mode,day]);
+ const flush=()=>{const a=flushRef.current?.();if(a)receive(a);};
+ const registerFlush=useCallback((f:(()=>Attempt)|null)=>{flushRef.current=f;},[]);
+ function activate(next:Attempt,nextMode:'Daily'|'Free play'){setAttempt(next);setMode(nextMode);setExhausted(false);setNotice('');}
+ function nextPuzzle(recycle=false){flush();if(recycle){const ids=new Set(catalogue.filter(p=>p.difficulty===state.current.difficulty).map(p=>p.id));state.current.seen=state.current.seen.filter(id=>!ids.has(id));}
+  const next=chooseNext(state.current,day);if(!next.puzzle){setExhausted(next.exhausted);setNotice(next.exhausted?'You have tried every puzzle at this level. Replay this collection or choose another level.':'This level has no other puzzles available. Choose another level.');return;}
+  const a=newAttempt(next.puzzle);state.current.free=a;state.current.seen=[...new Set([...state.current.seen,next.puzzle.id])];persist();activate(a,'Free play');if(recycle)setNotice('Collection restarted. These puzzles may be familiar.');
+ }
+ function switchMode(next:'Daily'|'Free play'){if(next===mode)return;flush();if(next==='Daily')activate(state.current.daily?.attempt??newAttempt(dailyPuzzle(day)),'Daily');else if(state.current.free)activate(state.current.free,'Free play');else nextPuzzle();}
+ const finish=useCallback(async(a:Attempt)=>{receive(a);const currentMode=mode;const pending=queue.current.then(()=>{if(blocked.current)throw Error("Saving is paused. Resolve the progress error before recording completion.");return saveCompletion(a,currentMode);});queue.current=pending.catch(()=>{});await pending;const result:Completion={puzzleId:a.puzzleId,attemptId:a.attemptId,mode:currentMode,day,hints:a.hints,elapsedMs:a.elapsedMs};state.current.completions=[...state.current.completions.filter(c=>c.attemptId!==a.attemptId),result].slice(-100);persist();},[day,mode,persist,receive,saveCompletion]);
+ const puzzle=findPuzzle(attempt.puzzleId)!;
+ const recent=viewProgress.completions.filter(c=>c.mode==='Free play'&&findPuzzle(c.puzzleId)?.difficulty===difficulty).slice(-3);
+ const suggest=recent.length===3&&recent.every(c=>c.hints===0)&&difficulty!=='Expert';
+ return <div className="game-hub"><nav className="mode-nav" aria-label="Game mode"><button data-mode="Daily" aria-pressed={mode==='Daily'} onClick={()=>switchMode('Daily')}>Daily</button><button data-mode="Free play" aria-pressed={mode==='Free play'} onClick={()=>switchMode('Free play')}>Free play</button><label>Level<select data-difficulty value={difficulty} onChange={e=>{flush();const level=e.target.value as Difficulty;state.current.difficulty=level;setDifficulty(level);persist();nextPuzzle();}}>{(['Standard','Hard','Expert'] as const).map(level=><option key={level}>{level}</option>)}</select></label>{mode==='Free play'&&<button data-skip onClick={()=>nextPuzzle()}>Next puzzle</button>}</nav>
+ <p className="hub-context"><strong data-brand>Everything Fits</strong> · {mode==='Daily'?day+' UTC · Shared daily puzzle':difficulty+' · '+catalogue.filter(p=>p.difficulty===difficulty).length+' puzzles in this collection'} · {storageLabel}</p>
+ {notice&&<p role="status">{notice}</p>}{exhausted&&<button onClick={()=>nextPuzzle(true)}>Replay collection</button>}
+ {suggest&&<p className="hub-suggestion">Three unassisted completions. Try {difficulty==='Standard'?'Hard':'Expert'} when you feel ready.</p>}
+ {error&&<section role="alert"><p>{error}</p><button onClick={()=>{blocked.current=false;lastSaved.current='';setError('');persist();}}>Retry saving progress</button><p>For a newer save in another tab, reload before continuing. This tab will not overwrite it automatically.</p></section>}
+ <CreativeGame key={mode+':'+attempt.attemptId} puzzle={puzzle} initialAttempt={attempt} completionRecorded={viewProgress.completions.some(c=>c.attemptId===attempt.attemptId)} mode={mode} onAttempt={receive} registerFlush={registerFlush} onComplete={finish} onNext={()=>nextPuzzle()} {...(completionLabel?{completionLabel}:{})} {...(onDescribe?{onDescribe}:{})}/>
+ <details className="hub-history"><summary>Progress & privacy</summary><p>{viewProgress.completions.length} recent completions saved. Personal times are unverified. Difficulty labels are provisional until human playtesting.</p><p>New puzzles have fresh timers and hints. Switching modes pauses your attempt. Resets within an attempt keep its penalties. A finite collection repeats only when you choose Replay collection.</p><button onClick={()=>{flush();const a=newAttempt(puzzle);if(mode==='Daily')state.current.daily={day,attempt:a};else state.current.free=a;persist();activate(a,mode);setNotice('Replay: a new attempt at the same puzzle.');}}>Replay this puzzle</button>{onDelete&&<><button onClick={()=>setDeleteConfirm(true)}>Delete saved game data…</button>{deleteConfirm&&<div><p>Delete your saved attempts and completions for this installation?</p><button onClick={()=>{blocked.current=true;void queue.current.then(()=>onDelete()).then(()=>setNotice('Saved data deleted. Reload to begin without restoring it.')).catch(e=>setError(String(e)));setDeleteConfirm(false);}}>Confirm deletion</button><button onClick={()=>setDeleteConfirm(false)}>Cancel</button></div>}</>}</details>
+ </div>;
+}

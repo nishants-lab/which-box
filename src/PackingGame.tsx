@@ -343,12 +343,12 @@ export function App({
     }
   }
 
-  const shareText = `Which Box? Daily Dispatch\n${day} UTC · Solved\nPacked in ${formatTime(clock.elapsed)} · ${hintCount} hints (+${hintCount * HINT_PENALTY_SECONDS}s)\nScored time ${formatTime(scoredSeconds(clock.elapsed, hintCount))}\nEvery parcel packed. Personal, unverified time. No solution shown.`;
+  const shareText = `Everything Fits Daily Dispatch\n${day} UTC · Solved\nPacked in ${formatTime(clock.elapsed)} · ${hintCount} hints (+${hintCount * HINT_PENALTY_SECONDS}s)\nScored time ${formatTime(scoredSeconds(clock.elapsed, hintCount))}\nEvery parcel packed. Personal, unverified time. No solution shown.`;
 
   return (
     <main className="packing-app">
       <header className="app-header">
-        <span className="wordmark">WHICH BOX?</span>
+        <span className="wordmark">EVERYTHING FITS</span>
         <time dateTime={day} title={`${day} UTC`}>
           {day.slice(5)} UTC
         </time>

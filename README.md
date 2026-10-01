@@ -1,18 +1,29 @@
-# Which Box?
+# Everything Fits
 
-A daily 3D packing puzzle. Everyone on the same UTC day and rules version gets the same order. Rotate and stack every parcel into the fixed smallest solvable box.
+A 3D packing puzzle with Daily and Free play. The creative version described below is a local release candidate, not a claim that it has been published or deployed.
 
-## Play
-The first parcel is selected automatically. Rotate to the desired width, depth and height. Use the placement grid or click the floor of the 3D box, then choose **Place parcel**. Drag to orbit, scroll to zoom, or switch to top view. Every parcel needs full support. Use **Seal box** when all items fit.
+## Play the creative build
 
-After finishing, choose **Share result** to download a 1200 x 800 PNG, copy the image where supported, or use your device share menu. The card shows packing time and hint use, never the solution. Nothing posts automatically.
+Choose Daily for the shared UTC-day puzzle, or Free play for Standard, Hard or Expert. Rotate connected L, step, T and other voxel parcels, choose a position on the always-visible grid, then place the parcel. Pieces descend vertically and every exposed bottom cell needs support. Fill the rectangular, L-shaped or raised-floor container, then seal it. Undo is free.
 
-## Fair play and privacy
-Daily puzzles reset at 00:00 UTC. Version 1.3 is single-player: no authenticated leaderboard, account, analytics or server-side score verification. Daily generation uses the device clock. Results are unverified and stored only in this browser, capped at 30 daily best records. Clearing site data removes them. Unfinished games reset when closed. GitHub Pages hosting has its own infrastructure logging.
+There are 90 distinct puzzles, 30 per difficulty. All have verified playable arrangements. Expert has 29 puzzles with exactly two distinct playable solutions and one with exactly one. Counts identify identical physical-piece swaps and gravity-preserving container rotations, never reflections. Difficulty labels are provisional pending human playtests.
 
-Items have fictional cuboid dimensions. Compact puzzles have a perfect-fit solution by construction. Novelty and production difficulty calibration remain future work. Personal progression and shared leaderboards are planned separately from the identical daily order.
+Free play supports repeated sessions from a finite catalogue. Next puzzle and Skip select unseen puzzles at the chosen difficulty, excluding today's Daily. When that pool is exhausted, choose an explicit replay cycle or another difficulty. This is not an endless supply of unique puzzles.
+
+Daily and Free play have separate saved attempts. Switching modes pauses the active attempt's personal timer. Each new attempt has two optional hints, adding 20 seconds each, and a one-off help offer. Resetting an attempt preserves hint penalties and whether help was already offered. Completion records are separate from unfinished attempts. Times are personal and unverified, with no leaderboard. Sharing creates a spoiler-free result card and never posts automatically.
+
+## Rules and catalogue stability
+
+Creative puzzles use `voxel-1`. The catalogue-v1 order and date mapping must remain immutable once published: appending or reordering that list would change Daily selection. Future catalogues need a separately versioned schedule. The legacy `dd-1` engine and prior result reader remain for compatibility; creative play does not redefine old daily seeds.
+
+`tools/generate-catalogue.mjs` deterministically generates candidates and verifies them offline. Certification requires exhaustive search; capped searches have an unknown solution count. Do not regenerate or reorder an already published catalogue in place.
+
+## Privacy and saved progress
+
+Web progress is stored only in this browser's local storage. It includes Daily and Free play attempts, seen-puzzle IDs and up to 100 creative completion records. There is no application account, analytics service or server-side score verification. Clearing site data removes browser progress. Separate browsers and devices do not synchronize. Hosting providers may retain infrastructure logs. Reddit has separate opt-in, community-scoped server storage; these web privacy statements do not describe Reddit's platform behavior.
 
 ## Development
+
 Requires Node 24+.
 
 ```sh
@@ -24,13 +35,24 @@ npx playwright install chromium
 npm run test:e2e
 ```
 
-The Pages workflow tests and deploys main. Public dependencies only: React, Three.js and Vite. No proprietary runtime or credentials required.
+The active unit tests cover the legacy engine, voxel rules, catalogue and saved progress. Creative browser tests are in `tests/creative.spec.ts`. The old UI play test is archived as `tests/legacy-play.scenario.ts`, outside automatic Playwright discovery; legacy engine tests remain active in `tests/game.test.ts`.
 
-## Release 1.1.0
-First public browser release, with spoiler-free PNG result sharing and responsive 3D gameplay. Native image sharing and clipboard access depend on browser support and permissions; PNG download is the fallback.
+The Pages workflow tests and deploys main when triggered. That workflow configuration does not establish that this local candidate is live. Dependencies are public React, Three.js and Vite; no proprietary runtime or credentials are required.
 
-## Release 1.2.0
-A count-up timer starts with the first parcel or hint. Two progressive starter hints cost 20 seconds each. Undo is free. Sealing stops the timer; Keep improving resumes it without clearing penalties. Reload clears the attempt time, not the stored best utilization. Timing is session-only. Parcel movement, camera transitions and the lid/tape finish respect reduced-motion settings. Share cards show elapsed time, hints and scored time. No leaderboard or points system.
+## Release 1.4.1
 
-## Single-box redesign (local build)
-One fixed Compact box, solvable by construction. The placement grid stays visible throughout play; the next unpacked parcel is selected automatically. More contains instructions, a text arrangement and reset. The help popover is offered at most once per mounted game, after three invalid position attempts or 60 seconds of visible active play without placement progress. Dismissing is free; accepting uses one of the two +20-second hints. Reset and Keep improving preserve the clock, hint count and one-shot offer. Completion replaces the packing controls. Enlarged text and short screens reflow rather than clipping controls.
+The visible name is Everything Fits, formerly Which Box?. Existing saved progress, puzzle identities and technical app identifiers are unchanged.
+
+## Historical releases
+
+### Release 1.1.0
+
+First public browser release, with spoiler-free PNG result sharing and responsive 3D gameplay. Native image sharing and clipboard access depended on browser support and permissions; PNG download was the fallback.
+
+### Release 1.2.0
+
+Introduced a count-up timer, two hints costing 20 seconds each, free undo, reduced-motion behavior and scored-time share cards. Timing was session-only and reload cleared attempt time. These historical persistence rules do not describe the creative build above.
+
+### Single-box redesign
+
+The earlier local redesign used one fixed Compact cuboid box, an always-visible placement grid, automatic next-parcel selection and a one-shot help offer. It preceded the creative voxel catalogue and separate saved modes.

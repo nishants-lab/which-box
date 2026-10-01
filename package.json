@@ -1,13 +1,13 @@
 {
   "name": "which-box",
-  "version": "1.3.0",
+  "version": "1.4.1",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview --host 127.0.0.1",
-    "test": "node --experimental-strip-types --test tests/game.test.ts",
+    "test": "node --experimental-strip-types --test tests/game.test.ts tests/voxel.test.ts tests/progress.test.ts",
     "test:e2e": "playwright test"
   },
   "dependencies": {
