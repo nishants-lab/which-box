@@ -8,7 +8,7 @@ Choose a box and a parcel. Rotate to the desired width, depth and height. Use th
 After finishing, choose **Show share card** to download a 1200 x 800 PNG, copy the image where supported, or use your device share menu. The card shows utilization and hint use, never the solution. Nothing posts automatically.
 
 ## Fair play and privacy
-Daily puzzles reset at 00:00 UTC. Version 1.1 is single-player: no authenticated leaderboard, account, analytics or server-side score verification. Daily generation uses the device clock. Results are unverified and stored only in this browser, capped at 30 daily best records. Clearing site data removes them. Unfinished games reset when closed. GitHub Pages hosting has its own infrastructure logging.
+Daily puzzles reset at 00:00 UTC. Version 1.2 is single-player: no authenticated leaderboard, account, analytics or server-side score verification. Daily generation uses the device clock. Results are unverified and stored only in this browser, capped at 30 daily best records. Clearing site data removes them. Unfinished games reset when closed. GitHub Pages hosting has its own infrastructure logging.
 
 Items have fictional cuboid dimensions. Compact puzzles have a perfect-fit solution by construction. Novelty and production difficulty calibration remain future work. Personal progression and shared leaderboards are planned separately from the identical daily order.
 
@@ -28,3 +28,6 @@ The Pages workflow tests and deploys main. Public dependencies only: React, Thre
 
 ## Release 1.1.0
 First public browser release, with spoiler-free PNG result sharing and responsive 3D gameplay. Native image sharing and clipboard access depend on browser support and permissions; PNG download is the fallback.
+
+## Release 1.2.0
+A count-up timer starts with the first parcel or hint. Two progressive starter hints cost 20 seconds each. Undo is free. Sealing stops the timer; Keep improving resumes it without clearing penalties. Reload clears the attempt time, not the stored best utilization. Timing is session-only. Parcel movement, camera transitions and the lid/tape finish respect reduced-motion settings. Share cards show elapsed time, hints and scored time. No leaderboard or points system.

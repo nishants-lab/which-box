@@ -139,3 +139,29 @@ nav button{font-size:11px}
 
 
 .image-share{margin-top:20px}.image-share img{display:block;width:100%;max-width:720px;height:auto;border:1px solid #c8cbbd;border-radius:4px}.image-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}.download-image{font:12px "Trebuchet MS",sans-serif;background:#29362e;color:#f7f3eb;padding:11px 16px;border-radius:4px;text-decoration:none;min-height:38px;display:inline-flex;align-items:center}.image-actions button{margin:0;font-size:12px}.image-share>p{font-size:12px}
+
+:root{--motion-out:cubic-bezier(.22,1,.36,1)}
+button,.download-image{transition:transform 140ms var(--motion-out),background-color 180ms ease-out,border-color 180ms ease-out,box-shadow 180ms ease-out}
+button:active:not(:disabled),.download-image:active{transform:translateY(1px) scale(.985)}
+.items button:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 4px 10px #29362e0d}
+.items button[aria-pressed=true] .swatch{transform:skewY(-8deg) translateY(-2px)}
+.swatch{transition:transform 220ms var(--motion-out)}
+.headline{padding-top:22px;padding-bottom:20px}.headline h1{font-size:clamp(34px,4vw,50px)}
+.clock-strip{display:flex;align-items:center;gap:26px;padding:15px 20px;margin:0 0 22px;border:1px solid #d5dece;border-radius:6px;background:#edf0e6}
+.clock-strip>div:first-child{min-width:140px;display:flex;flex-direction:column;gap:4px}
+.clock-label{font-size:9px;letter-spacing:1.4px;color:#5d6e58}
+.clock-strip [data-timer]{font-size:32px;line-height:1.1;font-variant-numeric:tabular-nums;font-weight:normal;letter-spacing:-1px}
+.clock-detail{display:flex;flex-direction:column;gap:6px;font-size:11px;border-left:1px solid #cbd4c4;padding-left:24px;font-variant-numeric:tabular-nums}
+.clock-detail>span{color:#687461}.clock-detail>strong{font-weight:normal}
+.clock-strip>p{margin-left:auto;font-size:11px;color:#65735c;max-width:190px}.clock-finished{background:#e4eddd}
+.hint{animation:soft-enter 240ms var(--motion-out)}.hint p{font-size:12px}.hint small{font-size:10px;color:#6b6759}
+.result{position:relative;overflow:hidden;animation:soft-enter 420ms var(--motion-out);padding:30px}
+.result-stats{display:flex;gap:25px;flex-wrap:wrap;margin:16px 0 24px}.result-stats>span{font-size:11px;color:#617458;display:flex;flex-direction:column;gap:5px}.result-stats strong{font-size:23px;font-weight:normal;color:#344b37;font-variant-numeric:tabular-nums}
+.dispatch-stamp{position:absolute;right:28px;top:32px;border:2px solid #64805c;border-radius:3px;padding:9px 14px;color:#58754f;letter-spacing:2px;font-size:12px;transform:rotate(-7deg)}
+.dispatch-stamp.stamping{animation:stamp-in 600ms var(--motion-out)}
+.result .skip-celebration{margin-right:8px;background:transparent;font-size:11px}
+.image-share{animation:soft-enter 260ms var(--motion-out)}
+@keyframes soft-enter{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes stamp-in{0%{opacity:0;transform:rotate(-7deg) scale(1.15)}100%{opacity:1;transform:rotate(-7deg) scale(1)}}
+@media(max-width:740px){.clock-strip{gap:16px;padding:14px}.clock-strip>div:first-child{min-width:110px}.clock-detail{padding-left:16px}.clock-strip>p{display:none}.result{padding:22px}.dispatch-stamp{position:static;display:inline-block;margin-bottom:18px}.bench-actions{flex-wrap:wrap}.bench-actions button:last-child{margin-left:0}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}.items button:hover:not(:disabled){transform:none}}
